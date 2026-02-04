@@ -58,13 +58,7 @@ export default function HomePage() {
               className="group"
             >
               <div className="card-modern overflow-hidden h-full flex flex-col">
-                {/* Image Placeholder with Gradient */}
                 <div className={`relative h-64 bg-gradient-to-br ${report.color} flex items-center justify-center`}>
-                  {report.badge && (
-                    <span className="absolute top-4 left-4 badge-new">
-                      {report.badge}
-                    </span>
-                  )}
                   <span className="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
                     ↗
                   </span>
@@ -77,7 +71,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Content */}
+                {/* Contenido */}
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                     {report.title}
