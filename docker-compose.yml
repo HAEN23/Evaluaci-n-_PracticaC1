@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_biblioteca
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: actividad_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./db/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+      - ./db/03_migrate.sql:/docker-entrypoint-initdb.d/03_migrate.sql
+      - ./db/04_reports_vw.sql:/docker-entrypoint-initdb.d/04_reports_vw.sql
+      - ./db/05_indexes.sql:/docker-entrypoint-initdb.d/05_indexes.sql
+      - ./db/06_roles.sql:/docker-entrypoint-initdb.d/06_roles.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d actividad_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: biblioteca_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: app_user
+      DB_PASSWORD: tu_password_seguro
+      DB_NAME: actividad_db
+      NODE_ENV: development
+      PORT: 3001
+    volumes:
+      - .:/app  
+      - /app/node_modules
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

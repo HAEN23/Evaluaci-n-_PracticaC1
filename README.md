@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Verificación de Seguridad de la Base de Datos
 
-## Getting Started
+Para garantizar que la aplicación se conecta de forma segura a la base de datos, se ha creado un rol específico `app_user` con permisos de solo lectura sobre las vistas de reportes, sin acceso a las tablas subyacentes.
 
-First, run the development server:
+Puedes verificar estos permisos conectándote a la base de datos con `psql` y ejecutando las siguientes consultas como el usuario `app_user`.
+
+### 1. Conectarse como `app_user`
+
+Primero, obtén el nombre del contenedor de la base de datos:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker ps
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Luego, conéctate a la base de datos usando el rol `app_user`. Se te pedirá la contraseña que definiste en `db/roles.sql`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Reemplaza <nombre_del_contenedor_db> con el nombre real
+docker exec -it <nombre_del_contenedor_db> psql -U app_user -d postgres
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Intentar Consultar una VISTA (Debería funcionar)
 
-## Learn More
+Una vez dentro de `psql`, ejecuta una consulta sobre una de las vistas permitidas.
 
-To learn more about Next.js, take a look at the following resources:
+```sql
+-- Esta consulta DEBE funcionar.
+SELECT * FROM vw_member_activity LIMIT 5;
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+El resultado debería ser una tabla con la actividad de los miembros.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Intentar Consultar una TABLA (Debería fallar)
 
-## Deploy on Vercel
+Ahora, intenta acceder directamente a una de las tablas base.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sql
+-- Esta consulta DEBE fallar.
+SELECT * FROM members LIMIT 5;
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Esta consulta debería fallar y devolver un error de **`permission denied for table members`**, demostrando que el usuario `app_user` no tiene acceso a las tablas directamente, como se requiere.
+
+```
+ERROR:  permission denied for table members
+```
+
+Esta verificación confirma que la configuración de seguridad es correcta.
