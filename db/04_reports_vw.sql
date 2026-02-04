@@ -69,8 +69,9 @@ FROM
 -- VIEW 3: vw_fines_summary (HAVING)
 -- Devuelve: Resumen de multas por mes.
 -- Grain: Un registro por año y mes (summary_month).
--- Métricas: total_fines_amount, paid_fines_amount, pending_fines_amount.
+-- Métricas: total_fines_amount, paid_fines_amount, pending_fines_amount, number_of_fines.
 -- VERIFY 1: SELECT * FROM vw_fines_summary WHERE summary_month = '2026-01';
+-- VERIFY 2: SELECT summary_month, total_fines_amount FROM vw_fines_summary ORDER BY summary_month DESC LIMIT 3;
 CREATE OR REPLACE VIEW vw_fines_summary AS
 SELECT
     TO_CHAR(l.loaned_at, 'YYYY-MM') AS summary_month,
@@ -91,8 +92,9 @@ HAVING
 -- VIEW 4: vw_member_activity (HAVING + CASE/COALESCE)
 -- Devuelve: Actividad de cada miembro, incluyendo total de préstamos y tasa de atraso.
 -- Grain: Un registro por miembro (member_id).
--- Métricas: total_loans, overdue_rate (Calculado).
+-- Métricas: total_loans (COUNT), overdue_rate_percentage (Calculado con COALESCE).
 -- VERIFY 1: SELECT * FROM vw_member_activity WHERE total_loans > 1;
+-- VERIFY 2: SELECT member_name, total_loans, overdue_rate_percentage FROM vw_member_activity ORDER BY total_loans DESC LIMIT 5;
 CREATE OR REPLACE VIEW vw_member_activity AS
 SELECT
     m.id AS member_id,
@@ -116,8 +118,9 @@ HAVING
 
 -- VIEW 5: vw_inventory_health (CASE/COALESCE)
 -- Devuelve: Estado del inventario de libros por categoría.
--- Grain: Un registro por categoría de libro (category).
--- Métricas: total_copies, available_copies, loaned_copies, lost_copies.
+-- Grain: Un registro por (COUNT), available_copies (SUM+CASE), loaned_copies (SUM+CASE), lost_copies (SUM+CASE), availability_percentage (Calculado).
+-- VERIFY 1: SELECT * FROM vw_inventory_health WHERE category = 'Distopía';
+-- VERIFY 2: SELECT category, total_copies, availability_percentage FROM vw_inventory_health ORDER BY availability_percentage ASC
 -- VERIFY 1: SELECT * FROM vw_inventory_health WHERE category = 'Distopía';
 CREATE OR REPLACE VIEW vw_inventory_health AS
 SELECT
