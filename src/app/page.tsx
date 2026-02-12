@@ -2,31 +2,31 @@ import Link from 'next/link';
 
 const reports = [
   { 
-    id: 'most-borrowed-books', 
+    id: '1', 
     title: 'Libros Más Prestados', 
     description: 'Ranking de los libros más populares',
     color: 'from-orange-400 to-orange-600'
   },
   { 
-    id: 'overdue-loans', 
+    id: '2', 
     title: 'Préstamos Vencidos', 
     description: 'Préstamos que superaron la fecha de devolución',
     color: 'from-red-400 to-red-600'
   },
   { 
-    id: 'fines-summary', 
+    id: '3', 
     title: 'Resumen de Multas', 
     description: 'Análisis mensual de multas',
     color: 'from-blue-400 to-blue-600'
   },
   { 
-    id: 'member-activity', 
+    id: '4', 
     title: 'Actividad de Miembros', 
     description: 'Estadísticas de préstamos por miembro',
     color: 'from-green-400 to-green-600'
   },
   { 
-    id: 'inventory-health', 
+    id: '5', 
     title: 'Salud del Inventario', 
     description: 'Estado del inventario por categoría',
     color: 'from-purple-400 to-purple-600'
@@ -63,11 +63,11 @@ export default function HomePage() {
                     ↗
                   </span>
                   <div className="text-white text-6xl opacity-30">
-                    {report.id === 'most-borrowed-books' && '📖'}
-                    {report.id === 'overdue-loans' && '⏰'}
-                    {report.id === 'fines-summary' && '💵'}
-                    {report.id === 'member-activity' && '👤'}
-                    {report.id === 'inventory-health' && '📊'}
+                    {report.id === '1' && '📖'}
+                    {report.id === '2' && '⏰'}
+                    {report.id === '3' && '💵'}
+                    {report.id === '4' && '👤'}
+                    {report.id === '5' && '📊'}
                   </div>
                 </div>
 
